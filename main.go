@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"time"
 
@@ -223,10 +224,11 @@ func main() {
 	render()
 	time.Sleep(100 * time.Millisecond)
 	data := NewScrenData()
+	data.setPixel(20, 19, true)
 	data.setPixel(20, 20, true)
 	data.setPixel(20, 21, true)
-	data.setPixel(21, 21, true)
-	data.setPixel(21, 22, true)
+	data.setPixel(21, 20, true)
+	data.setPixel(19, 20, true)
 	renderScreen(*data)
 
 	time.Sleep(10 * time.Second)
@@ -250,9 +252,9 @@ func (sd *ScreenData) setPixel(x uint8, y uint8, value bool) {
 func (sd *ScreenData) matrixToBytes() (res [WIDTH][PAGE_SIZE]byte) {
 	for kX, vX := range sd.data {
 		for kY, vY := range vX {
-			row := kY / PAGE_SIZE
+			row := kY/PAGE_SIZE - 1
 			if vY {
-				res[kX][row] = res[kX][row] | byte(kY%8)
+				res[kX][row] = res[kX][row] | byte(int64(math.Pow(float64(2), float64(kY%8))))
 			}
 		}
 	}
