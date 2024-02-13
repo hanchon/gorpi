@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"time"
+	"math/rand"
 
 	"github.com/stianeikeland/go-rpio/v4"
 )
@@ -108,26 +109,46 @@ func initSPI() {
 	rpio.SpiMode(0, 0)
 }
 
+func RandBool() bool {
+	rand.Seed(time.Now().UnixNano())
+	return rand.Intn(2) == 1
+}
+
 func render() {
+	dc := rpio.Pin(DC_PIN)
 	for page := 0; page < 8; page++ {
 		writeCommand(byte(0xB0 + page))
 		writeCommand(byte(0x02))
 		writeCommand(byte(0x10))
 		time.Sleep(10 * time.Millisecond)
-		dc := rpio.Pin(DC_PIN)
 		dc.High()
 
 		for index := 0; index < WIDTH; index++ {
 			// let byte = self.memory[index + self.width as usize * page as usize];
-			rpio.SpiTransmit(byte(0xFF))
+			if index == WIDTH/2 && page == 0 {
+				rpio.SpiTransmit(byte(0b11000000))
+			}else if index == WIDTH/2 && page == 1 {
+				rpio.SpiTransmit(byte(0b01000000))
+			}else if index == WIDTH/2 && page == 2 {
+				rpio.SpiTransmit(byte(0b00000000))
+			}else if index == WIDTH/2 && page == 3 {
+				rpio.SpiTransmit(byte(0b11100000))
+			}else if index == WIDTH/2 && page == 4 {
+				rpio.SpiTransmit(byte(0b11110000))
+			}else if index == WIDTH/2 && page == 6 {
+				rpio.SpiTransmit(byte(0b11111111))
+			}else{
+				rpio.SpiTransmit(byte(0x00))
+			}
 		}
 	}
+	dc.Low()
 }
 
-func display() {
-	rpio.SpiBegin(rpio.Spi0)
-
+func setContrast() {
+	writeCommand([]byte{130, 0x7F}...)
 }
+
 
 func main() {
 	if err := rpio.Open(); err != nil {
@@ -178,10 +199,15 @@ func main() {
 	}()
 
 	initSPI()
+	setContrast()
 	initDisplay()
+	time.Sleep(time.Second)
+	time.Sleep(100 * time.Millisecond)
+	fmt.Println("rendering")
 	render()
 
-	time.Sleep(60 * time.Second)
+	time.Sleep(10 * time.Second)
+	writeCommand(byte(0xAE)) // --turn off the screen
 	rpio.SpiEnd(rpio.Spi0)
 	fmt.Println("ending here")
 }
