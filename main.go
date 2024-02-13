@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"time"
 
@@ -254,7 +253,7 @@ func (sd *ScreenData) matrixToBytes() (res [WIDTH][PAGE_SIZE]byte) {
 		for kY, vY := range vX {
 			row := kY/PAGE_SIZE - 1
 			if vY {
-				res[kX][row] = res[kX][row] | byte(int64(math.Pow(float64(2), float64(kY%8))))
+				res[kX][row] = res[kX][row] | byte(2<<(kY%8))
 			}
 		}
 	}
