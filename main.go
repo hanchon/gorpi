@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"time"
 	"math/rand"
+	"time"
 
 	"github.com/stianeikeland/go-rpio/v4"
 )
@@ -32,6 +32,7 @@ const CS_PIN = 8
 const BL_PIN = 18
 const WIDTH = 132
 const HEIGHT = 64
+const PAGE_SIZE = 8
 
 func writeCommand(command ...byte) {
 	pin := rpio.Pin(DC_PIN)
@@ -116,7 +117,7 @@ func RandBool() bool {
 
 func render() {
 	dc := rpio.Pin(DC_PIN)
-	for page := 0; page < 8; page++ {
+	for page := 0; page < PAGE_SIZE; page++ {
 		writeCommand(byte(0xB0 + page))
 		writeCommand(byte(0x02))
 		writeCommand(byte(0x10))
@@ -124,22 +125,38 @@ func render() {
 		dc.High()
 
 		for index := 0; index < WIDTH; index++ {
-			// let byte = self.memory[index + self.width as usize * page as usize];
 			if index == WIDTH/2 && page == 0 {
 				rpio.SpiTransmit(byte(0b11000000))
-			}else if index == WIDTH/2 && page == 1 {
+			} else if index == WIDTH/2 && page == 1 {
 				rpio.SpiTransmit(byte(0b01000000))
-			}else if index == WIDTH/2 && page == 2 {
+			} else if index == WIDTH/2 && page == 2 {
 				rpio.SpiTransmit(byte(0b00000000))
-			}else if index == WIDTH/2 && page == 3 {
+			} else if index == WIDTH/2 && page == 3 {
 				rpio.SpiTransmit(byte(0b11100000))
-			}else if index == WIDTH/2 && page == 4 {
+			} else if index == WIDTH/2 && page == 4 {
 				rpio.SpiTransmit(byte(0b11110000))
-			}else if index == WIDTH/2 && page == 6 {
+			} else if index == WIDTH/2 && page == 6 {
 				rpio.SpiTransmit(byte(0b11111111))
-			}else{
+			} else {
 				rpio.SpiTransmit(byte(0x00))
 			}
+		}
+	}
+	dc.Low()
+}
+
+func renderScreen(sd ScreenData) {
+	dc := rpio.Pin(DC_PIN)
+	matrix := sd.matrixToBytes()
+	for page := 0; page < PAGE_SIZE; page++ {
+		writeCommand(byte(0xB0 + page))
+		writeCommand(byte(0x02))
+		writeCommand(byte(0x10))
+		time.Sleep(10 * time.Millisecond)
+		dc.High()
+
+		for index := 0; index < WIDTH; index++ {
+			rpio.SpiTransmit(matrix[index][page])
 		}
 	}
 	dc.Low()
@@ -148,7 +165,6 @@ func render() {
 func setContrast() {
 	writeCommand([]byte{130, 0x7F}...)
 }
-
 
 func main() {
 	if err := rpio.Open(); err != nil {
@@ -205,9 +221,40 @@ func main() {
 	time.Sleep(100 * time.Millisecond)
 	fmt.Println("rendering")
 	render()
+	time.Sleep(100 * time.Millisecond)
+	data := NewScrenData()
+	data.setPixel(20, 20, true)
+	data.setPixel(20, 21, true)
+	data.setPixel(21, 21, true)
+	data.setPixel(21, 22, true)
+	renderScreen(*data)
 
 	time.Sleep(10 * time.Second)
 	writeCommand(byte(0xAE)) // --turn off the screen
 	rpio.SpiEnd(rpio.Spi0)
 	fmt.Println("ending here")
+}
+
+type ScreenData struct {
+	data [WIDTH][HEIGHT]bool
+}
+
+func NewScrenData() *ScreenData {
+	return &ScreenData{}
+}
+
+func (sd *ScreenData) setPixel(x uint8, y uint8, value bool) {
+	sd.data[x][y] = value
+}
+
+func (sd *ScreenData) matrixToBytes() (res [WIDTH][PAGE_SIZE]byte) {
+	for kX, vX := range sd.data {
+		for kY, vY := range vX {
+			row := kY / PAGE_SIZE
+			if vY {
+				res[kX][row] = res[kX][row] | byte(kY%8)
+			}
+		}
+	}
+	return res
 }
