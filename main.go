@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/hanchon/gorpi/text"
 	"github.com/stianeikeland/go-rpio/v4"
 )
 
@@ -228,6 +229,11 @@ func main() {
 	data.setPixel(20, 21, true)
 	data.setPixel(21, 20, true)
 	data.setPixel(19, 20, true)
+
+	data.addLetter('a', 30, 30)
+
+	data.addEmoji(30, 100)
+
 	renderScreen(*data)
 
 	time.Sleep(10 * time.Second)
@@ -258,4 +264,39 @@ func (sd *ScreenData) matrixToBytes() (res [WIDTH][PAGE_SIZE]byte) {
 		}
 	}
 	return res
+}
+
+func (sd *ScreenData) addLetter(letter rune, initX uint8, initY uint8) {
+	// TODO: validate that rune is in the array
+	matrix, ok := text.LetterPixelArrays[letter]
+	if !ok {
+		fmt.Println("letter not found!")
+		return
+	}
+	fmt.Println(matrix)
+	for y, row := range matrix {
+		for x, pixel := range row {
+			if pixel {
+				fmt.Println("1")
+				// TODO: handle overflow
+				sd.setPixel(initX+uint8(x), initY+uint8(y), true)
+			} else {
+				fmt.Println(" ")
+			}
+		}
+		fmt.Println()
+	}
+}
+
+func (sd *ScreenData) addEmoji(initX uint8, initY uint8) {
+	smily := []byte{0x7E, 0x81, 0x95, 0xB1, 0xB1, 0x95, 0x81, 0x7E}
+	for y, v := range smily {
+		for x := 0; x < 8; x++ {
+			// Use bitwise AND operation to check each bit
+			if (v & (1 << uint(7-x))) != 0 {
+				sd.setPixel(initY+uint8(len(smily)-1-y), initX+uint8(x), true)
+			}
+		}
+	}
+
 }
