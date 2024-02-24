@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hanchon/gorpi/assets"
 	"github.com/hanchon/gorpi/spi"
 )
 
@@ -43,6 +44,15 @@ func main() {
 		}
 	}()
 
-	data := spi.NewScrenData()
-	device.RenderScreen(data)
+	sd := spi.NewScrenData()
+
+	assets.ImgToScreenData(&assets.ConverterParams{
+		Img:     assets.Player(),
+		Reverse: true,
+		Sd:      sd,
+	})
+
+	device.RenderScreen(sd)
+
+	time.Sleep(10 * time.Second)
 }

@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"fmt"
 
+	"github.com/hanchon/gorpi/spi"
 	"github.com/spakin/netpbm"
 )
 
@@ -15,6 +16,35 @@ var (
 	//go:embed dino.pbm
 	dino []byte
 )
+
+type ConverterParams struct {
+	Img     *netpbm.Image
+	Reverse bool
+	Sd      *spi.ScreenData
+	OffsetX uint8
+	OffsetY uint8
+}
+
+func ImgToScreenData(params *ConverterParams) {
+	cmp := func(a uint32) bool {
+		temp := false
+		if a == 0 {
+			temp = true
+		}
+		if params.Reverse {
+			return !temp
+		}
+		return temp
+	}
+
+	bounds := (*params.Img).Bounds()
+	for y := 0; y < bounds.Max.Y; y++ {
+		for x := 0; x < bounds.Max.X; x++ {
+			c, _, _, _ := (*params.Img).At(x, y).RGBA()
+			params.Sd.SetPixel(uint8(x)+params.OffsetX, uint8(y)+params.OffsetY, cmp(c))
+		}
+	}
+}
 
 func PrintImg(img *netpbm.Image, reverse bool) {
 	cmp := func(a uint32) bool {
@@ -40,7 +70,6 @@ func PrintImg(img *netpbm.Image, reverse bool) {
 		}
 		fmt.Println("")
 	}
-
 }
 
 func bytesToImg(raw []byte) *netpbm.Image {
