@@ -17,8 +17,16 @@ func (sd *ScreenData) matrixToBytes() (res [width][pageSize]byte) {
 		for kY, vY := range vX {
 			// TODO: make sure that this work for the last row
 			row := kY / (pageSize - 1)
+
+			// If pixel needs to be displayed
 			if vY {
-				res[kX][row] = res[kX][row] | byte(2<<(kY%8))
+				// We use 1 for the first element and then 2.Pow(index) for the rest of the values
+				temp := (kY % pageSize)
+				if temp == 0 {
+					res[kX][row] = res[kX][row] | byte(1)
+				} else {
+					res[kX][row] = res[kX][row] | byte(2<<((kY-1)%pageSize))
+				}
 			}
 		}
 	}

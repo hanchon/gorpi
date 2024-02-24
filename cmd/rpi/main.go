@@ -43,10 +43,10 @@ func (p *Pos) MoveX(moveRight bool) {
 		return
 	}
 	if temp+p.PlayerWidth > p.DeviceWidth {
-		p.Y = p.PlayerWidth
+		p.X = p.PlayerWidth
 		return
 	}
-	p.Y = temp
+	p.X = temp
 }
 
 func main() {
