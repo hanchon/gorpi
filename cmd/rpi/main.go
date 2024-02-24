@@ -8,7 +8,7 @@ import (
 	"github.com/hanchon/gorpi/spi"
 )
 
-const Speed = 5
+const Speed = 3
 
 type Pos struct {
 	X            int
@@ -62,14 +62,14 @@ func main() {
 	}()
 
 	run := true
-	player := assets.Player()
+	player := assets.Run()
 	playerPos := Pos{
 		X:            0,
 		Y:            0,
 		DeviceWidth:  device.Width,
 		DeviceHeight: device.Height,
-		PlayerWidth:  (*player).Bounds().Max.X,
-		PlayerHeight: (*player).Bounds().Max.Y,
+		PlayerWidth:  player.SpriteWidth,
+		PlayerHeight: player.SpriteHeight,
 	}
 
 	go func() {
@@ -112,17 +112,30 @@ func main() {
 		}
 	}()
 
+	counter := uint8(0)
+	go func() {
+		for run {
+			if counter+1 > uint8(player.SpriteAmount)-1 {
+				counter = 0
+			} else {
+				counter++
+			}
+			time.Sleep(500 * time.Millisecond)
+		}
+	}()
 	for run {
 		sd := spi.NewScrenData()
-		assets.ImgToScreenData(&assets.ConverterParams{
-			Img:     player,
-			Reverse: true,
-			Sd:      sd,
-			OffsetX: uint8(playerPos.X),
-			OffsetY: uint8(playerPos.Y),
-		})
+		assets.SpriteToScreenData(player, uint8(playerPos.X), uint8(playerPos.Y), counter, sd)
+		// assets.ImgToScreenData(&assets.ConverterParams{
+		// 	Img:     player,
+		// 	Reverse: true,
+		// 	Sd:      sd,
+		// 	OffsetX: uint8(playerPos.X),
+		// 	OffsetY: uint8(playerPos.Y),
+		// })
 		device.RenderScreen(sd)
 		time.Sleep(17 * time.Microsecond)
+		counter++
 	}
 
 }

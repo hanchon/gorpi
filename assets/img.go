@@ -15,6 +15,9 @@ var (
 
 	//go:embed dino.pbm
 	dino []byte
+
+	//go:embed run.pbm
+	run []byte
 )
 
 type ConverterParams struct {
@@ -87,6 +90,17 @@ func bytesToImg(raw []byte) *netpbm.Image {
 
 func Player() *netpbm.Image {
 	return bytesToImg(player)
+}
+
+func Run() *Sprite {
+	return &Sprite{
+		SpriteSheet:     bytesToImg(run),
+		SpriteWidth:     13,
+		SpriteHeight:    16,
+		SpriteSeparator: 3,
+		SpriteAmount:    6,
+		Reverse:         true,
+	}
 }
 
 func Dino() *netpbm.Image {

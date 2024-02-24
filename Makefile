@@ -1,4 +1,4 @@
-.PHONY: run, desktop
+.PHONY:  desktop
 
 rpi:
 	@go run cmd/rpi/main.go
