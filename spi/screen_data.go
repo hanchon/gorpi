@@ -15,9 +15,7 @@ func (sd *ScreenData) SetPixel(x uint8, y uint8, value bool) {
 func (sd *ScreenData) matrixToBytes() (res [width][pageSize]byte) {
 	for kX, vX := range sd.data {
 		for kY, vY := range vX {
-			// TODO: make sure that this work for the last row
-			row := kY / (pageSize - 1)
-
+			row := kY / pageSize
 			// If pixel needs to be displayed
 			if vY {
 				// We use 1 for the first element and then 2.Pow(index) for the rest of the values
