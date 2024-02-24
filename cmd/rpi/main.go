@@ -24,10 +24,13 @@ func (p *Pos) MoveY(moveUp bool) {
 	}
 	if temp < 0 {
 		p.Y = 0
+		return
 	}
 	if temp+p.PlayerHeight > p.DeviceHeight {
 		p.Y = p.PlayerHeight
+		return
 	}
+	p.Y = temp
 }
 
 func (p *Pos) MoveX(moveRight bool) {
@@ -37,10 +40,13 @@ func (p *Pos) MoveX(moveRight bool) {
 	}
 	if temp < 0 {
 		p.X = 0
+		return
 	}
 	if temp+p.PlayerWidth > p.DeviceWidth {
 		p.Y = p.PlayerWidth
+		return
 	}
+	p.Y = temp
 }
 
 func main() {

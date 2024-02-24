@@ -47,7 +47,6 @@ func NewDevice() *Device {
 }
 
 func (d *Device) CloseDevice() {
-	time.Sleep(10 * time.Second)
 	writeCommand(byte(0xAE)) // --turn off the screen
 	rpio.SpiEnd(rpio.Spi0)
 	rpio.Close()
