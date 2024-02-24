@@ -8,15 +8,14 @@ import (
 	"github.com/hanchon/gorpi/spi"
 )
 
-const Speed = 3
+const Speed = 7
 
 type Pos struct {
 	X            int
 	Y            int
 	DeviceWidth  int
 	DeviceHeight int
-	PlayerWidth  int
-	PlayerHeight int
+	Sprite       *assets.Sprite
 }
 
 func (p *Pos) MoveY(moveUp bool) {
@@ -28,8 +27,8 @@ func (p *Pos) MoveY(moveUp bool) {
 		p.Y = 0
 		return
 	}
-	if temp+p.PlayerHeight > p.DeviceHeight {
-		p.Y = p.DeviceHeight - p.PlayerHeight
+	if temp+p.Sprite.SpriteHeight > p.DeviceHeight {
+		p.Y = p.DeviceHeight - p.Sprite.SpriteHeight
 		return
 	}
 	p.Y = temp
@@ -39,13 +38,16 @@ func (p *Pos) MoveX(moveRight bool) {
 	temp := p.X - Speed
 	if moveRight {
 		temp = p.X + Speed
+		p.Sprite.Mirror = false
+	} else {
+		p.Sprite.Mirror = true
 	}
 	if temp < 0 {
 		p.X = 0
 		return
 	}
-	if temp+p.PlayerWidth+10 > p.DeviceWidth {
-		p.X = p.DeviceWidth - p.PlayerWidth - 10
+	if temp+p.Sprite.SpriteWidth+10 > p.DeviceWidth {
+		p.X = p.DeviceWidth - p.Sprite.SpriteWidth - 10
 		return
 	}
 	p.X = temp
@@ -68,8 +70,7 @@ func main() {
 		Y:            0,
 		DeviceWidth:  device.Width,
 		DeviceHeight: device.Height,
-		PlayerWidth:  player.SpriteWidth,
-		PlayerHeight: player.SpriteHeight,
+		Sprite:       player,
 	}
 
 	go func() {

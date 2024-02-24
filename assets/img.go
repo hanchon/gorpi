@@ -99,7 +99,7 @@ func Run() *Sprite {
 		SpriteHeight:    16,
 		SpriteSeparator: 3,
 		SpriteAmount:    6,
-		Reverse:         true,
+		ColorsReverse:   true,
 	}
 }
 

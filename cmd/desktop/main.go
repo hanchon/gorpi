@@ -7,5 +7,9 @@ import (
 func main() {
 	assets.PrintImg(assets.Player(), true)
 	assets.PrintImg(assets.Dino(), false)
-	assets.PrintSprite(assets.Run(), 0, 0, 0)
+	run := assets.Run()
+	run.Mirror = false
+	assets.PrintSprite(run, 0)
+	run.Mirror = true
+	assets.PrintSprite(run, 0)
 }
