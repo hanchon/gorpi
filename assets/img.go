@@ -1,4 +1,4 @@
-package main
+package assets
 
 import (
 	"bytes"
@@ -43,7 +43,7 @@ func PrintImg(img *netpbm.Image, reverse bool) {
 
 }
 
-func BytesToImg(raw []byte) *netpbm.Image {
+func bytesToImg(raw []byte) *netpbm.Image {
 	bytes := bytes.NewReader(raw)
 
 	img, err := netpbm.Decode(bytes, &netpbm.DecodeOptions{
@@ -56,10 +56,10 @@ func BytesToImg(raw []byte) *netpbm.Image {
 	return &img
 }
 
-func main() {
-	playerImg := BytesToImg(player)
-	dinoImg := BytesToImg(dino)
-	PrintImg(playerImg, true)
-	PrintImg(dinoImg, false)
+func Player() *netpbm.Image {
+	return bytesToImg(player)
+}
 
+func Dino() *netpbm.Image {
+	return bytesToImg(dino)
 }
