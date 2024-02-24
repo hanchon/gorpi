@@ -8,6 +8,8 @@ import (
 	"github.com/hanchon/gorpi/spi"
 )
 
+const Speed = 5
+
 type Pos struct {
 	X            int
 	Y            int
@@ -18,32 +20,32 @@ type Pos struct {
 }
 
 func (p *Pos) MoveY(moveUp bool) {
-	temp := p.Y - 1
+	temp := p.Y + Speed
 	if moveUp {
-		temp = p.Y + 1
+		temp = p.Y - Speed
 	}
 	if temp < 0 {
 		p.Y = 0
 		return
 	}
 	if temp+p.PlayerHeight > p.DeviceHeight {
-		p.Y = p.PlayerHeight
+		p.Y = p.DeviceHeight - p.PlayerHeight
 		return
 	}
 	p.Y = temp
 }
 
 func (p *Pos) MoveX(moveRight bool) {
-	temp := p.X - 1
+	temp := p.X - Speed
 	if moveRight {
-		temp = p.Y + 1
+		temp = p.X + Speed
 	}
 	if temp < 0 {
 		p.X = 0
 		return
 	}
-	if temp+p.PlayerWidth > p.DeviceWidth {
-		p.X = p.PlayerWidth
+	if temp+p.PlayerWidth+10 > p.DeviceWidth {
+		p.X = p.DeviceWidth - p.PlayerWidth - 10
 		return
 	}
 	p.X = temp
@@ -120,7 +122,7 @@ func main() {
 			OffsetY: uint8(playerPos.Y),
 		})
 		device.RenderScreen(sd)
-		time.Sleep(100 * time.Microsecond)
+		time.Sleep(17 * time.Microsecond)
 	}
 
 }
