@@ -15,6 +15,8 @@ type Device struct {
 	KeyLeft  Button
 	KeyRight Button
 	KeyPress Button
+	Height   int
+	Width    int
 }
 
 func NewDevice() *Device {
@@ -32,6 +34,8 @@ func NewDevice() *Device {
 		KeyLeft:  Button{Button: initButton(keyLeftPin), Name: "Left"},
 		KeyRight: Button{Button: initButton(keyRightPin), Name: "Right"},
 		KeyPress: Button{Button: initButton(keyPressPin), Name: "Press"},
+		Height:   height,
+		Width:    width,
 	}
 	initSPI()
 	setContrast()
